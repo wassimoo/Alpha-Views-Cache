@@ -16,9 +16,8 @@
  require __DIR__ . "/../src/ViewCache.php";
 
 try{
-    $cache = new ViewCache(__DIR__ . "/../cache/", ".twig");
-    $cache->cache("head","Hello World !");
-    echo $cache->retrieve("head");
+    $cache = new ViewCache("wassimoo", __DIR__ . "/../cache/", ".twig");
+    echo $cache->retrieve("xd");
 }catch(\Exception $ex){
     echo $ex->getMessage();
 }
