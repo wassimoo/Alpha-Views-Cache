@@ -3,7 +3,7 @@
 /**
  * Alpha View Cache
  * API Documentation: https://github.com/wassimoo/alpha-view-cache
- * 
+ *
  * @author Wassim Bougarfa
  * @since 24.04.2018
  * @copyright Alpha-Solutions
@@ -27,7 +27,6 @@ class ViewCache
      */
     private $views;
 
-
     /**
      * @var string folder path
      */
@@ -37,7 +36,6 @@ class ViewCache
      * @var string path to cached views list.
      */
     private $cacheListPath;
-    
 
     /**
      * ViewCache constructor.
@@ -50,24 +48,24 @@ class ViewCache
     {
         $this->mainCache = new \Cache(
             ["name" => $fileName,
-            "path"=> $folder,
-            "extension"=> $extension]
+                "path" => $folder,
+                "extension" => $extension]
         );
 
         $this->views = [];
         $this->cacheFolder = $folder;
         $this->cacheListPath = $this->cacheFolder . "cacheList.list";
 
-        try{
-            $this->views = $this->getRenderedFileList();
-        }catch(\Exception $ex){
+        try {
+            $this->views = $this->getRenderedViews();
+        } catch (\Exception $ex) {
             //create associated file .
-            
-            if(($file =  fopen($this->cacheListPath,"w")) == false){
+
+            if (($file = fopen($this->cacheListPath, "w")) == false) {
                 //TODO : log to file ;
-           }
+            }
         }
-        
+
     }
 
     /**
@@ -79,62 +77,77 @@ class ViewCache
      */
     public function cache(string $name, string $data, int $expiration = 0)
     {
-        if(array_key_exists($name,$this->views)){
-            try{
+        if (array_key_exists($name, $this->views)) {
+            try {
                 $this->mainCache->erase($this->views[$name]);
-            }catch(\Exception $e){
+            } catch (\Exception $e) {
                 //TODO : log to file .
             }
         }
 
         $key = $this->randHash(18);
-        if($this->mainCache->store($key, $data, $expiration)){
+        if ($this->mainCache->store($key, $data, $expiration)) {
             $this->views[$name] = $key;
-            $this->updateRenderedFileList();
+            $this->updateRenderedViews();
             return true;
         }
         return false;
 
     }
 
-    public function changeCacheFile(string $fileName){
+    public function changeCacheFile(string $fileName)
+    {
         $this->mainCache = $filName;
     }
 
     /**
-     * Update cache views list. 
+     * Update cache views list.
      * @return bool success/failure
+     * @throws \Exception
      */
-    private function updateRenderedFileList(){
-        $data = json_encode($this->views);
-        return file_put_contents($this->cacheListPath, $data);
+    private function updateRenderedViews()
+    {
+        $data = file_get_contents($this->cacheListPath);
+        if ($data === false) {
+            throw new \Exception("Can't read file ");
+        }
+
+        $allWritten = json_decode($data,true);
+        $targetFile = $this->mainCache->getCache();
+        $allWritten[$targetFile] = $this->views;
+        return file_put_contents($this->cacheListPath, json_encode($allWritten));
     }
 
     /**
-     * 
-     * @throws \Exception
+     *
      * @return array rendered views list name => key
+     * @throws \Exception
      */
-    private function getRenderedFileList(){
+    private function getRenderedViews()
+    {
         $data = file_get_contents($this->cacheListPath);
-        if($data === false)
+        if ($data === false) {
             throw new \Exception("Can't read file ");
-        return json_decode($data,true);
+        }
+
+        $allWritten = json_decode($data, true);
+        return $allWritten[$this->mainCache->getCache()];
     }
-    
+
     /**
      * @var string $name viewName
      * @return string $data
-     * @throws \Exception
+     * @throws \Exception view not found
      */
-    public function retrieve(string $name){
+    public function retrieve(string $name)
+    {
         $data = $this->mainCache->retrieve($this->views[$name]);
 
-        if($data === null){
+        if ($data === null) {
             //TODO: log to file
-           throw new \Exception("undefined view name");
-           
-        }   
+            throw new \Exception("undefined view name");
+
+        }
         return $data;
     }
 
@@ -142,7 +155,7 @@ class ViewCache
      * @param int $len
      * @return bool|string
      */
-    function randHash($len = 32)
+    public function randHash($len = 32)
     {
         return substr(md5(openssl_random_pseudo_bytes(20)), -$len);
     }
