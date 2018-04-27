@@ -34,7 +34,7 @@ class ViewCache
     private $cacheFolder;
 
     /**
-     * @var string path to cached files list.
+     * @var string path to cached views list.
      */
     private $cacheListPath;
     
@@ -102,7 +102,7 @@ class ViewCache
     }
 
     /**
-     * Update cache files list. 
+     * Update cache views list. 
      * @return bool success/failure
      */
     private function updateRenderedFileList(){
@@ -113,7 +113,7 @@ class ViewCache
     /**
      * 
      * @throws \Exception
-     * @return array rendered files list name => key
+     * @return array rendered views list name => key
      */
     private function getRenderedFileList(){
         $data = file_get_contents($this->cacheListPath);
