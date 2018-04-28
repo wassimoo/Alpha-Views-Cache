@@ -95,6 +95,15 @@ class ViewCache
 
     }
 
+    /**
+     * Verifies view is saved to cache
+     * @var string $name view name
+     * @return bool 
+     */
+    public function isCached(string $name){
+        return array_key_exists($name, $this->views);
+    }
+
     public function changeCacheFile(string $fileName)
     {
         $this->mainCache = $filName;

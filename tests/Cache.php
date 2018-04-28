@@ -44,4 +44,4 @@ $cache2 = create_cache_instance("waelo");
 register_cache_succefully($cache2, " Beta");
 
 echo $cache->retrieve("head") . "<br>"; // will load view associated to user (Alpha)
-echo $cache2->retrieve("footer"); // same but for (Beta)
+echo $cache2->retrieve("footer") . "<br>"; // same but for (Beta)
